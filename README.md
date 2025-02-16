@@ -56,29 +56,6 @@ Dalam proyek ini, saya akan menggunakan data rekomendasi game pada Steam yang te
 **Hasil yang Diharapkan:**
 - Sistem rekomendasi yang relevan untuk pengguna.
 - Wawasan faktor-faktor penting yang memengaruhi aspek game di Steam.
-
-## Import Library
-
-
-```python
-import seaborn as sns
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
-import tensorflow as tf
-import keras
-from keras import layers
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
-from matplotlib.patches import ConnectionPatch
-%matplotlib inline
-sns.set_theme()
-```
-
 ## **Data Understanding**
 
 Lakukan proses data understanding, ini termasuk data loading, memeriksa tipe data pada variabel, missing value, dan duplikasi data, setelah itu memberikan detail deskripsi variabel
@@ -101,29 +78,6 @@ print("Path to dataset files:", path)
 
 
 
-```python
-import os
-import pandas as pd
-
-df_game = []
-for file in os.listdir(path):
-
-    file_path = os.path.join(path, file)
-    print(f"Reading {file} ...")
-
-    if file == "users.csv":
-        df_users = pd.read_csv(file_path)
-    elif file == "games.csv":
-        df_games = pd.read_csv(file_path)
-    elif file == "games_metadata.json":
-        df_meta = pd.read_json(file_path, lines=True)
-    else:
-        df_recom = pd.read_csv(file_path)
-
-
-print("Selesai!")
-```
-
     Reading games_metadata.json ...
     Reading users.csv ...
     Reading games.csv ...
@@ -139,28 +93,6 @@ Selanjutnya adalah memeriksa beberapa hal dalam data, seperti missing value, dat
 
 #### **df_games**
 
-
-```python
-df_games.head()
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -309,21 +241,6 @@ pd.DataFrame({'Daftar Missing Value: ': df_games.isnull().sum()})
 
 
 
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -394,28 +311,6 @@ Data ```df_games``` memiliki jumlah row sebanyak 50872 row data, dengan total va
 
 #### **df_recom**
 
-
-```python
-df_recom.head()
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -528,23 +423,6 @@ pd.DataFrame({'Daftar Missing Value: ': df_recom.isnull().sum()})
     
 
 
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -595,28 +473,6 @@ pd.DataFrame({'Daftar Missing Value: ': df_recom.isnull().sum()})
 
 #### **df_meta**
 
-
-```python
-df_meta.head()
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -687,36 +543,6 @@ df_meta.info()
 Sebelum mengidentifikasi data duplikasi, perlu diperhatikan bahwa value pada variabel ```tags``` adalah dalam bentuk list, untuk itu variabel ini harus diubah menjadi string
 
 
-```python
-# Ubah kolom 'tags' menjadi string jika diperlukan
-# df_meta['tags'] = df_meta['tags'].apply(lambda x: ' '.join(map(str, x)) if isinstance(x, list) else '')
-df_meta['tags'] = df_meta['tags'].apply(
-    lambda x: np.nan if not x or (isinstance(x, list) and len(x) == 0) else ' '.join(map(str, x))
-)
-```
-
-
-```python
-df_meta.sample(5)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -775,21 +601,6 @@ pd.DataFrame({'Daftar Missing Value: ': df_meta.isnull().sum()})
 
 
 
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -821,15 +632,6 @@ data pada ```df_meta``` sendiri memiliki total row sebanyak 50872 entries, denga
 ___
 
 Menggabungkan beberapa data menjadi satu sebelum melakukan analysis dan data preparation, serta identifikasi missing value.
-
-
-```python
-# Merge data game, metadata dengan recommendation
-df_games_meta = pd.merge(df_games, df_meta, on='app_id', how='left')
-
-# Merge data game dengan recommendation
-df_games_rec = pd.merge(df_games, df_recom, on='app_id', how='left')
-```
 
 
 ```python
@@ -940,69 +742,6 @@ Berikut daftar deksripsi variabel yang ada pada data yang sudah di load.
 Berikut distribusi untuk kategorical features, pada data bisa diketahui bahwa 98% lebih game yang terdapat pada platform Steam mendukung system operasi Windows, sedang sebanyak 75% game tersedia untuk system operasi Mac, dan 82,2% game tersedia dalam system operasi Linux, dan yang terakhir adalah hampir semua game mendukung steam deck.
 Distribusi untuk kategori rating dapat disimpulkan bahwa kebanyakan game pada Steam dengan rating positive, artinya Steam sangat memperhatikan game yang masuk kedalam platform mereka.
 
-
-```python
-cat_features = ['win', 'mac', 'linux', 'steam_deck', 'rating']
-n_cols = 2
-n_rows = (len(cat_features) + n_cols - 1) // n_cols
-
-# Membuat subplot
-fig, axes = plt.subplots(n_rows, n_cols, figsize=(20, 8 * n_rows))
-axes = axes.flatten()
-
-# Fungsi untuk menampilkan persentase & jumlah absolut pada pie chart
-def func(pct, allvals):
-    absolute = int(np.round(pct / 100. * np.sum(allvals)))
-    return f"{pct:.1f}%\n({absolute})"
-
-
-for i, feature in enumerate(cat_features):
-    # Hitung distribusi
-    count = df_games_meta[feature].value_counts()
-    ax = axes[i]
-
-    if feature == 'rating':
-        # Gunakan colormap tab10 untuk warna yang harmonis
-        cmap = plt.get_cmap('tab10')
-        bar_colors = [cmap(i) for i in range(len(count))]
-
-        # Bar Chart
-        bars=ax.bar(count.index.astype(str), count.values, color=bar_colors)
-        ax.set_xlabel('Kategori')
-        ax.set_ylabel('Jumlah')
-
-        ax.set_xticks(range(len(count.index)))
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
-        # Tambahkan legend
-        ax.legend(bars, count.index.astype(str), title="Kategori", loc="upper right")
-
-    else:
-        # Pie Chart dengan format dokumentasi Matplotlib bakery
-        # colors = plt.get_cmap('Blues')(np.linspace(0.2, 0.7, len(count.values)))
-
-        wedges, texts, autotexts = ax.pie(
-            count.values, labels=count.index.astype(str),
-            autopct=lambda pct: func(pct, count.values),
-            textprops=dict(color="w"), startangle=90, wedgeprops={"edgecolor": "white"}
-        )
-
-        ax.legend(wedges, count.index.astype(str), title="Kategori", loc="center left",
-                  bbox_to_anchor=(1, 0, 0.5, 1))
-
-        plt.setp(autotexts, size=14, weight="bold")
-
-    ax.set_title(f'Distribusi {feature}', fontsize=18, fontweight='bold')
-
-# Hapus subplot kosong jika jumlah fitur ganjil
-for j in range(len(cat_features), len(axes)):
-    fig.delaxes(axes[j])
-
-plt.tight_layout()
-plt.show()
-
-```
-
-
     
 ![png](README_files/README_46_0.png)
     
@@ -1010,22 +749,6 @@ plt.show()
 
 Pada numerical features, yang pertama distribusi dari variable positive_ratio sangat menunjukkan hal positive karna banyaknya rating yang positive sehingga rasio positive yang tinggi juga sangat banyak. Untuk variable price original dan price final, tidak menunjukkan perbedaan yang signifikan, dan ternyata sangat banyak game dengan Harga yang relative rendah bahkan gratis.
 
-
-```python
-num_features = df_games_meta[['positive_ratio', 'price_original', 'price_final']]
-
-# Buat histogram
-fig = num_features.hist(bins=50, figsize=(20, 15))
-
-# Loop setiap subplot untuk memperbesar title dan menambahkan label
-for ax, col in zip(fig.flatten(), num_features.columns):
-    ax.set_title(f'Distribusi {col}', fontsize=18, fontweight='bold')  # Perbesar title
-    ax.set_xlabel(col, fontsize=14)  # Label X
-    ax.set_ylabel('Frekuensi', fontsize=14)  # Label Y
-
-plt.show()
-
-```
 
 
     
@@ -1038,41 +761,6 @@ plt.show()
 Selanjutnya, menganalisis game popular berdasarkan beberapa kategori yang berhubungan dengan melakukan analisis ultivariat. Pertama Game terpopuler berdasarkan kategori rating terhadap user_review dimana rating ```Very Positive``` sangat dominan dengan jumlah lebih dari 7e6 user review, beberapa game dalam kategori ini yaitu ```Counter-Strike: Global Offensive``` dengan urutan teratas, diikuti oleh game ```PUBG, dan Terraria``` sebagai top tiga game teratas dari kategori ini.
 Selanjutnya berdasarkan rating terhadap price_final, aplikasi teratas adalah ```Clickteam Fusion 2.5 Developer Upgrade``` dengan harga 300 dollar, diikuti oleh software ```Aart Curvy 3D 3.0 dan Houdini Indie```, akan tetapi aplikasi ini mendapat rating yang positive.
 Dan terakhir adalah game teratas berdasarkan total jam bermain, dimana ```The Quarry, Bad Rats: the Rat's Revenge, Clicker Heroes 2``` menjadi top tiga game dengan jumlah hours tertinggi dan dengan rating yang sangat positive.
-
-
-```python
-# Data untuk visualisasi
-top_games_by_rating = df_games_meta.sort_values(by='user_reviews', ascending=False).groupby('rating').head(1)
-top_games_by_price = df_games_meta.sort_values(by='price_final', ascending=False).groupby('rating').head(1)
-top_games_by_hours = df_games_rec.sort_values(by='hours', ascending=False).groupby('rating').head(1)
-
-def plotRating(data, x, y, top):
-
-    # Grafik batang
-    plt.figure(figsize=(12, 5))
-    sns.barplot(
-        data=data,
-        x=x,
-        y=y,
-        hue=top,
-        dodge=False,
-        palette='viridis'
-    )
-
-    # Menambahkan label dan judul
-    plt.title(f'Game Terpopuler Berdasarkan Kategori {x} dan {y}', fontsize=16)
-    plt.xlabel(f'{x}', fontsize=12)
-    plt.ylabel(f'{y}', fontsize=12)
-    plt.xticks(rotation=45)
-    plt.legend(title=top, bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.tight_layout()
-    plt.show()
-
-plotRating(top_games_by_rating, x='rating', y='user_reviews', top='title')
-plotRating(top_games_by_price, x='rating', y='price_final', top='title')
-plotRating(top_games_by_hours, x='rating', y='hours', top='title')
-```
-
 
     
 ![png](README_files/README_51_0.png)
@@ -1098,44 +786,12 @@ plotRating(top_games_by_hours, x='rating', y='hours', top='title')
 Waktunya mempersiapkan data untuk mengembangkan model machine learning agar bisa digunakan dengan maksimal. Sebelum itu, dikarenakan terbatasnya memori yang bisa digunakan untuk memproses data yang sangat banyak ini, terlebih dahulu dilakukannya filtering data dengan mengambil beberapa sample data, disini menggunakan data mulai dari tahun 2020, kemudian hanyak mengambil sample 10000 dari data tersebut, sehingga yang awalnya data dengan total rows 25880823 menjadi 36700 lalu mengambil 10000 dari data tersebut. Selanjutnya memilih variabel-variabel yang dibutuhkan dalam content-based filtering ini, diantaranya yaitu ```app_id, title, win, mac, Linux, rating, tags```.
 
 
-```python
-def filter_data(to_data, data):
-
-    start_date = '2020-01-01'
-    filtered_data = data[data['date'] >= start_date]
-
-    print(f"Number of rows after date filtering: {filtered_data.shape[0]}")
-
-
-    return filtered_data
-```
-
-
-```python
-filtered_data = filter_data(df_games_meta, df_recom)
-filtered_data.head()
-```
-
     Number of rows after date filtering: 25880823
 
 
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1211,26 +867,9 @@ filtered_data.head()
 </div>
 
 
-
-
-```python
-# Filter df_games_meta berdasarkan app_id yang ada di filtered_data
-df_games_meta = df_games_meta[df_games_meta['app_id'].isin(filtered_data['app_id'])]
-
-print(f"Jumlah baris di df_games_meta se: {df_games_meta.shape[0]}")
-```
-
     Jumlah baris di df_games_meta se: 36700
 
 
-
-```python
-# Hapus semua baris yang memiliki nilai kosong
-df_games_meta = df_games_meta.dropna()
-
-# Periksa jumlah baris dan kolom setelah penghapusan
-print(f"Jumlah data setelah drop missing value: {df_games_meta.shape}")
-```
 
     Jumlah data setelah drop missing value: (36123, 15)
 
@@ -1289,13 +928,6 @@ Semakin tinggi nilai **TF-IDF**, semakin penting kata tersebut dalam dokumen.
 
 dari hasi yang ditunjukkan pada table, tags family dimiliki oleh game King of Retail dan Tamarin, selain itu Tamarin memiliki tag stylized, controller dan metroidvania. ini hanya beberapa contoh ayng dapat ditampilkan.
 
-
-```python
-tfidf = TfidfVectorizer()
-
-tfidf.fit(df_content_based['tags'])
-tfidf.get_feature_names_out()
-```
 
 
 
@@ -1385,40 +1017,6 @@ tfidf.get_feature_names_out()
 
 
 
-
-```python
-tfidf_matrix = tfidf.fit_transform(df_content_based['tags'])
-tfidf_todense = tfidf_matrix.todense()
-tfidf_array = np.asarray(tfidf_todense)
-tfidf_encoded = pd.DataFrame(
-    tfidf_todense,
-    columns=tfidf.get_feature_names_out(),
-    index=df_content_based.title
-)
-```
-
-
-```python
-tfidf_encoded.sample(10, axis=1).sample(10, axis=0)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1590,10 +1188,7 @@ tfidf_encoded.sample(10, axis=1).sample(10, axis=0)
 Selanjutnya membangun sistem rekomendasi dengan pendekatan Collaborative Filtering. Pertama melakukan filtering data untuk mengambil sample dengan rentang tertentu agar cukup memori untuk memproses semua ini. Gunakan fungsi yang sudah dibuat sebelumnya, kemudian merge dengan data games untuk mengambil feature yang akan diproses nantinya.
 
 
-```python
-filtered_data_rec = filter_data(df_games_rec, df_recom)
-filtered_data_rec.head()
-```
+
 
     Number of rows after date filtering: 25880823
 
@@ -1601,20 +1196,6 @@ filtered_data_rec.head()
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1692,26 +1273,8 @@ filtered_data_rec.head()
 
 
 
-```python
-df_collab = pd.merge(filtered_data_rec, df_games, on='app_id', how='left')
-```
-
 Jangan lupa untuk memilih variabel yang sesuai untuk diproses selanjutnya. Pada Collaborative Filtering ini akan menggunakan fitur ```app_id, user_id, hours, is_recommended, dan rating```
 
-
-```python
-df_collab_based = df_collab[['user_id', 'app_id', 'hours', 'is_recommended', 'rating']].copy()
-
-# df_collab_based['user_id'] = df_collab_based['user_id'].astype(int)
-# df_collab_based['app_id'] = df_collab_based['app_id'].astype(int)
-
-# Cek tipe data untuk memastikan perubahan
-print(df_collab_based.dtypes)
-
-# Hapus duplikat berdasarkan app_id
-df_collab_based = df_collab_based.drop_duplicates(subset=['app_id'])
-
-```
 
     user_id             int64
     app_id              int64
@@ -1724,48 +1287,8 @@ df_collab_based = df_collab_based.drop_duplicates(subset=['app_id'])
 Setelah itu lakukan proses encode pada beberapa variabel yang diperlukan, seperti rating, app_id, dan user_id. Karna variabel rating merupakan kategorikal dengan total 9 jenis rating, dari Overwhelmingly Negative hingga Overwhelmingly Positive. dari kesembilan rating tersebut akan disandi menjadi numerik dari 1-9, agar bisa diproses oleh model nanti.
 
 
-```python
-# Daftar rating dengan urutan dari yang terburuk ke terbaik
-rating_list = [
-    'Overwhelmingly Negative',  # 0 - 19% + many reviews -> 1
-    'Very Negative',            # 0 - 19%               -> 2
-    'Negative',                 # 0 - 39% + few reviews -> 3
-    'Mostly Negative',          # 20 - 39%              -> 4
-    'Mixed',                    # 40 - 69%              -> 5
-    'Mostly Positive',          # 70 - 79%              -> 6
-    'Positive',                 # 80 - 99% + few reviews-> 7
-    'Very Positive',            # 94 - 80%              -> 8
-    'Overwhelmingly Positive'   # 95 - 99%              -> 9
-]
-
-# Membuat layer StringLookup dengan vocabulary
-rating_encoder = tf.keras.layers.StringLookup(vocabulary=rating_list, num_oov_indices=0)
-
-# Mengubah rating menjadi angka dengan StringLookup
-df_collab_based["rating"] = rating_encoder(df_collab_based["rating"]).numpy()
-
-# Cek hasil encoding
-df_collab_based.sample(5)
-
-```
 
 
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1827,53 +1350,6 @@ df_collab_based.sample(5)
 Selanjutnya melakukan proses encoding user_id dan app_id, kemudian melakukan pemetaan keduanya kedalam dataframe. Selain itu juga memproses rating menjadi float untuk proses selanjutnya dalam proses data normalization
 
 
-```python
-# Mengubah userID menjadi list tanpa nilai yang sama
-user_id = df_collab_based['user_id'].unique().tolist()
-
-# ENcoding User_id
-user_to_user_encoded = {x: i for i, x in enumerate(user_id)}
-
-# Melakukan proses encoding angka ke ke userID
-user_encoded_to_user = {i: x for i, x in enumerate(user_id)}
-
-```
-
-
-```python
-# Mengubah app_id menjadi list tanpa nilai yang sama
-app_id = df_collab_based['app_id'].unique().tolist()
-
-# ENcoding app_id
-app_to_app_encoded = {x: i for i, x in enumerate(app_id)}
-
-# Melakukan proses encoding angka ke ke app_id
-app_encoded_to_app = {i: x for i, x in enumerate(app_id)}
-```
-
-
-```python
-# Mapping userID ke dataframe
-df_collab_based['user'] = df_collab_based['user_id'].map(user_to_user_encoded)
-
-# Mapping app_id ke dataframe
-df_collab_based['app'] = df_collab_based['app_id'].map(app_to_app_encoded)
-```
-
-
-```python
-import random
-sample_user = random.sample(list(user_to_user_encoded.items()), 3)
-print(f"Encoded user_id: {sample_user}")
-sample_user_dec = random.sample(list(user_encoded_to_user.items()), 3)
-print(f"Encoded angka ke user_id: {sample_user_dec}")
-
-sample_app = random.sample(list(app_to_app_encoded.items()), 3)
-print(f"Encoded user_id: {sample_app}")
-sample_app_dec = random.sample(list(app_encoded_to_app.items()), 3)
-print(f"Encoded angka ke user_id: {sample_app_dec}")
-```
-
     Encoded user_id: [(8839158, 1863), (9777376, 9790), (8046687, 22616)]
     Encoded angka ke user_id: [(13384, 12362303), (27751, 11285202), (19727, 14105188)]
     Encoded user_id: [(1435700, 17269), (321960, 3005), (596240, 13854)]
@@ -1881,29 +1357,10 @@ print(f"Encoded angka ke user_id: {sample_app_dec}")
 
 
 
-```python
-num_user = len(user_to_user_encoded)
-print(f"num of user: {num_user}")
-
-num_app = len(app_encoded_to_app)
-print(f"num of app: {num_app}")
-```
-
     num of user: 28334
     num of app: 36700
 
 
-
-```python
-# Mengubah rating menjadi nilai float
-df_collab_based['rating'] = df_collab_based['rating'].values.astype(np.float32)
-
-# Nilai minimum rating
-min_rating = min(df_collab_based['rating'])
-
-# Nilai maksimal rating
-max_rating = max(df_collab_based['rating'])
-```
 
 ### **Data Normalization**
 
@@ -1926,12 +1383,6 @@ Normalisasi ini membantu algoritma **Machine Learning dan Collaborative Filterin
 Setiap rating dikurangi dengan rating minimum dalam dataset (min_rating), kemudian dibagi dengan selisih antara rating maksimum (max_rating) dan minimum. Teknik ini digunakan untuk memastikan bahwa perbedaan skala rating antar pengguna tidak mempengaruhi sistem rekomendasi secara berlebihan, serta meningkatkan kinerja model dalam perhitungan kesamaan (similarity metrics).
 
 Kedua proses ini merupakan bagian dari data preprocessing dalam Collaborative Filtering, yang bertujuan untuk meningkatkan kualitas rekomendasi dengan memastikan bahwa data memiliki bobot yang sesuai dan skala yang seragam.
-
-
-```python
-# df_collab_based = df_collab_based.sample(frac=1, random_state=20)
-```
-
 
 ```python
 df_collab_based['hours']= df_collab_based.apply(lambda x: x['hours'] * 1.25 if x['is_recommended'] else x['hours'] * 0.75, axis=1)
@@ -2057,37 +1508,12 @@ Observasi dari Sampel:
 - Cooking Festival dan Duck Life memiliki kesamaan relatif tinggi (0.329), mungkin karena tema kasual atau mekanisme gameplay yang mirip.
 - Beberapa game seperti Reanimation Inc. dan ZANGEKI WARP memiliki nilai yang sangat rendah (mendekati 0), menunjukkan bahwa game tersebut mungkin sangat berbeda dari lainnya.
 
-
-```python
-cos_sim_df = pd.DataFrame(
-    cos_sim,
-    index=df_content_based['title'],
-    columns=df_content_based['title']
-)
-print(f"Shape: {cos_sim_df.shape}")
-cos_sim_df.sample(5, axis=1).sample(10, axis=0)
+```
+    Shape: (10000, 10000)
 ```
 
-    Shape: (10000, 10000)
 
 
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2197,54 +1623,12 @@ cos_sim_df.sample(5, axis=1).sample(10, axis=0)
 ### **Mendapatkan Rekomendasi**
 
 
-```python
-def game_recommendations(k, variabel, similarity_data=cos_sim_df, items=df_games):
-
-    index = similarity_data.loc[:, variabel].to_numpy().argpartition(
-        range(-1, -k, -1)
-    )
-
-    # Ambil data dengan similarity terbesar dari index yang ada
-    closest = similarity_data.columns[index[-1:-(k+2):-1]]
-
-    # Drop nama_resto agar nama resto yang dicari tidak muncul dalam daftar rekomendasi
-    closest = closest.drop(variabel, errors='ignore')
-
-    # Ambil nilai cosine similarity untuk game yang direkomendasikan
-    sim_scores = similarity_data.loc[closest, variabel].values
-
-
-    # Gabungkan data rekomendasi dengan item terkait
-    recommendations = pd.DataFrame({'title': closest, 'similarity score':sim_scores})
-    recommendations = recommendations.merge(items, on='title', how='left')
-
-    return recommendations.head(k)
-```
-
 hasil rekomendasi dari system yang dibangun, dengan mencoba menginput data game dengan title BlackJack Math, diperoleh hasil rekomendasi dengan rata-rata similarity scorenya sama dengan 0.65, beberapa game yang direkomendasikan yaitu ```Journey of Greed, Love Letter, Splendor, Avalon Legends Solitaire, Pathfinder Avdentures```
 
 
-```python
-df_games[df_games.title.eq('BlackJack Math')]
-```
 
 
 
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2287,28 +1671,6 @@ df_games[df_games.title.eq('BlackJack Math')]
 
 
 
-
-```python
-game_recommendations(5, 'BlackJack Math')
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2464,77 +1826,6 @@ Callback lr_sc kemudian digunakan untuk mengatur learning rate selama pelatihan 
 
 
 
-```python
-
-class RecommenderNet(tf.keras.Model):
-
-    # init fungsi
-    def __init__(self, num_users, num_apps, embedding_size, **kwargs):
-        super().__init__(**kwargs)
-        self.num_users = num_users
-        self.num_apps = num_apps
-        self.embedding_size = embedding_size
-        self.user_embedding = layers.Embedding(
-            num_users,
-            embedding_size,
-            embeddings_initializer = 'he_normal',
-            embeddings_regularizer = keras.regularizers.l2(1e-6)
-        )
-        self.user_bias = layers.Embedding(num_users, 1) # layer embedding user bias
-        self.app_embedding = layers.Embedding(
-            num_apps,
-            embedding_size,
-            embeddings_initializer = 'he_normal',
-            embeddings_regularizer = keras.regularizers.l2(1e-6)
-        )
-        self.app_bias = layers.Embedding(num_apps, 1) #  layer embedding apps
-
-    def call(self, inputs):
-        user_vector = self.user_embedding(inputs[:,0])
-        user_bias = self.user_bias(inputs[:,0])
-        apps_vector = self.app_embedding(inputs[:,1])
-        apps_bias = self.app_bias(inputs[:,1])
-
-        dot_user_apps = tf.tensordot(user_vector, apps_vector, 2)
-
-        x = dot_user_apps + user_bias + apps_bias
-
-        return tf.nn.sigmoid(x)
-```
-
-
-```python
-
-class CustomEarlyStopping(keras.callbacks.Callback):
-    def __init__(self, patience=5):
-        super(CustomEarlyStopping, self).__init__()
-        self.patience = patience
-        self.best_loss = float('inf')
-        self.wait = 0
-
-    def on_epoch_end(self, epoch, logs=None):
-        curr_loss = logs.get('loss')
-
-        if curr_loss < self.best_loss:
-            self.best_loss = curr_loss
-            self.wait = 0
-
-        else:
-            self.wait += 1
-            if self.wait >= self.patience:
-                print(f"\nTraining dihentikan pada epoch {epoch+1} karena loss tidak membaik.")
-                self.model.stop_training = True
-
-def scheduler(epoch, lr):
-    if epoch < 10:
-        return lr
-    else:
-        return lr * np.exp(-0.1)
-
-lr_sc = keras.callbacks.LearningRateScheduler(scheduler)
-
-```
-
 ### **Training**
 
 Fungsi ```com_model(model)``` digunakan untuk melakukan kompilasi model sebelum proses pelatihan. Dalam fungsi ini, model dikompilasi menggunakan Binary Crossentropy sebagai fungsi loss karena tugas rekomendasi ini melibatkan klasifikasi biner, yaitu menentukan apakah suatu aplikasi cocok untuk seorang pengguna atau tidak. Optimizer yang digunakan adalah Adam dengan learning rate sebesar 0.001, yang memberikan keseimbangan antara konvergensi yang cepat dan kestabilan selama training. Selain itu, metrik evaluasi yang digunakan adalah ```Root Mean Squared Error (RMSE)``` untuk mengukur sejauh mana prediksi model berbeda dari nilai sebenarnya.
@@ -2544,33 +1835,6 @@ Selanjutnya, ```fungsi run_model(model, X_train, X_val, y_train, y_val)``` digun
 Pada akhirnya, model RecommenderNet diinisialisasi dengan num_user, num_app, dan ukuran embedding sebesar 50 dimensi. Ukuran embedding ini berperan dalam merepresentasikan pengguna dan aplikasi dalam ruang laten, sehingga memungkinkan model untuk mempelajari pola interaksi yang lebih kompleks antara pengguna dan aplikasi yang direkomendasikan.
 
 
-```python
-def com_model(model):
-
-    # Model compile
-    model.compile(
-        loss = tf.keras.losses.BinaryCrossentropy(),
-        optimizer = keras.optimizers.Adam(learning_rate=0.001),
-        metrics=[tf.keras.metrics.RootMeanSquaredError()]
-    )
-    return model
-
-def run_model(model, X_train, X_val, y_train, y_val):
-    # Training
-    history = model.fit(
-        x= X_train,
-        y= y_train,
-        batch_size = 16,
-        epochs = 150,
-        verbose=1,
-        validation_data = (X_val, y_val),
-        callbacks = [CustomEarlyStopping(patience=5), lr_sc]
-    )
-    return history
-
-model = RecommenderNet(num_user, num_app, 50)
-```
-
 compile dan kemudian train model dengan memanggil fungsi yang sudah dibuat dengan memasukkan parameter yang sesuai, disini dibuat dua pendekatan, class pertama adalah hour dan yang kedua adalah rating.
 
 
@@ -2579,102 +1843,6 @@ model_h = com_model(model)
 history_h = run_model(model_h, X_train_h, X_val_h, y_train_h, y_val_h)
 ```
 
-    Epoch 1/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m8s[0m 3ms/step - loss: 0.6899 - root_mean_squared_error: 0.4852 - val_loss: 0.6783 - val_root_mean_squared_error: 0.4801 - learning_rate: 0.0010
-    Epoch 2/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5716 - root_mean_squared_error: 0.4212 - val_loss: 0.6685 - val_root_mean_squared_error: 0.4743 - learning_rate: 0.0010
-    Epoch 3/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.2524 - root_mean_squared_error: 0.2209 - val_loss: 0.6658 - val_root_mean_squared_error: 0.4719 - learning_rate: 0.0010
-    Epoch 4/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1497 - root_mean_squared_error: 0.1304 - val_loss: 0.6642 - val_root_mean_squared_error: 0.4703 - learning_rate: 0.0010
-    Epoch 5/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1308 - root_mean_squared_error: 0.1078 - val_loss: 0.6616 - val_root_mean_squared_error: 0.4686 - learning_rate: 0.0010
-    Epoch 6/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1199 - root_mean_squared_error: 0.0937 - val_loss: 0.6577 - val_root_mean_squared_error: 0.4665 - learning_rate: 0.0010
-    Epoch 7/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1201 - root_mean_squared_error: 0.0925 - val_loss: 0.6535 - val_root_mean_squared_error: 0.4642 - learning_rate: 0.0010
-    Epoch 8/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1195 - root_mean_squared_error: 0.0932 - val_loss: 0.6492 - val_root_mean_squared_error: 0.4621 - learning_rate: 0.0010
-    Epoch 9/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1158 - root_mean_squared_error: 0.0908 - val_loss: 0.6449 - val_root_mean_squared_error: 0.4600 - learning_rate: 0.0010
-    Epoch 10/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1173 - root_mean_squared_error: 0.0898 - val_loss: 0.6409 - val_root_mean_squared_error: 0.4581 - learning_rate: 0.0010
-    Epoch 11/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1188 - root_mean_squared_error: 0.0938 - val_loss: 0.6375 - val_root_mean_squared_error: 0.4565 - learning_rate: 9.0484e-04
-    Epoch 12/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1158 - root_mean_squared_error: 0.0907 - val_loss: 0.6345 - val_root_mean_squared_error: 0.4552 - learning_rate: 8.1873e-04
-    Epoch 13/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1131 - root_mean_squared_error: 0.0891 - val_loss: 0.6319 - val_root_mean_squared_error: 0.4540 - learning_rate: 7.4082e-04
-    Epoch 14/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1177 - root_mean_squared_error: 0.0947 - val_loss: 0.6294 - val_root_mean_squared_error: 0.4529 - learning_rate: 6.7032e-04
-    Epoch 15/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1078 - root_mean_squared_error: 0.0848 - val_loss: 0.6273 - val_root_mean_squared_error: 0.4521 - learning_rate: 6.0653e-04
-    Epoch 16/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1109 - root_mean_squared_error: 0.0866 - val_loss: 0.6254 - val_root_mean_squared_error: 0.4512 - learning_rate: 5.4881e-04
-    Epoch 17/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1042 - root_mean_squared_error: 0.0778 - val_loss: 0.6236 - val_root_mean_squared_error: 0.4505 - learning_rate: 4.9659e-04
-    Epoch 18/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1071 - root_mean_squared_error: 0.0823 - val_loss: 0.6221 - val_root_mean_squared_error: 0.4498 - learning_rate: 4.4933e-04
-    Epoch 19/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1059 - root_mean_squared_error: 0.0805 - val_loss: 0.6207 - val_root_mean_squared_error: 0.4492 - learning_rate: 4.0657e-04
-    Epoch 20/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1046 - root_mean_squared_error: 0.0790 - val_loss: 0.6195 - val_root_mean_squared_error: 0.4487 - learning_rate: 3.6788e-04
-    Epoch 21/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1063 - root_mean_squared_error: 0.0815 - val_loss: 0.6185 - val_root_mean_squared_error: 0.4483 - learning_rate: 3.3287e-04
-    Epoch 22/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1029 - root_mean_squared_error: 0.0777 - val_loss: 0.6175 - val_root_mean_squared_error: 0.4479 - learning_rate: 3.0119e-04
-    Epoch 23/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1038 - root_mean_squared_error: 0.0785 - val_loss: 0.6166 - val_root_mean_squared_error: 0.4475 - learning_rate: 2.7253e-04
-    Epoch 24/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1021 - root_mean_squared_error: 0.0780 - val_loss: 0.6158 - val_root_mean_squared_error: 0.4472 - learning_rate: 2.4660e-04
-    Epoch 25/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0988 - root_mean_squared_error: 0.0730 - val_loss: 0.6151 - val_root_mean_squared_error: 0.4469 - learning_rate: 2.2313e-04
-    Epoch 26/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1024 - root_mean_squared_error: 0.0771 - val_loss: 0.6144 - val_root_mean_squared_error: 0.4466 - learning_rate: 2.0190e-04
-    Epoch 27/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0999 - root_mean_squared_error: 0.0743 - val_loss: 0.6139 - val_root_mean_squared_error: 0.4464 - learning_rate: 1.8268e-04
-    Epoch 28/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1001 - root_mean_squared_error: 0.0762 - val_loss: 0.6133 - val_root_mean_squared_error: 0.4461 - learning_rate: 1.6530e-04
-    Epoch 29/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0971 - root_mean_squared_error: 0.0728 - val_loss: 0.6129 - val_root_mean_squared_error: 0.4460 - learning_rate: 1.4957e-04
-    Epoch 30/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1026 - root_mean_squared_error: 0.0775 - val_loss: 0.6124 - val_root_mean_squared_error: 0.4458 - learning_rate: 1.3534e-04
-    Epoch 31/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0986 - root_mean_squared_error: 0.0719 - val_loss: 0.6120 - val_root_mean_squared_error: 0.4456 - learning_rate: 1.2246e-04
-    Epoch 32/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0981 - root_mean_squared_error: 0.0722 - val_loss: 0.6117 - val_root_mean_squared_error: 0.4455 - learning_rate: 1.1080e-04
-    Epoch 33/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0978 - root_mean_squared_error: 0.0712 - val_loss: 0.6114 - val_root_mean_squared_error: 0.4453 - learning_rate: 1.0026e-04
-    Epoch 34/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0965 - root_mean_squared_error: 0.0708 - val_loss: 0.6111 - val_root_mean_squared_error: 0.4452 - learning_rate: 9.0718e-05
-    Epoch 35/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0968 - root_mean_squared_error: 0.0734 - val_loss: 0.6109 - val_root_mean_squared_error: 0.4451 - learning_rate: 8.2085e-05
-    Epoch 36/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0965 - root_mean_squared_error: 0.0709 - val_loss: 0.6107 - val_root_mean_squared_error: 0.4450 - learning_rate: 7.4274e-05
-    Epoch 37/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0996 - root_mean_squared_error: 0.0743 - val_loss: 0.6104 - val_root_mean_squared_error: 0.4449 - learning_rate: 6.7206e-05
-    Epoch 38/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.1002 - root_mean_squared_error: 0.0758 - val_loss: 0.6103 - val_root_mean_squared_error: 0.4449 - learning_rate: 6.0810e-05
-    Epoch 39/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0979 - root_mean_squared_error: 0.0729 - val_loss: 0.6101 - val_root_mean_squared_error: 0.4448 - learning_rate: 5.5023e-05
-    Epoch 40/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0966 - root_mean_squared_error: 0.0697 - val_loss: 0.6099 - val_root_mean_squared_error: 0.4447 - learning_rate: 4.9787e-05
-    Epoch 41/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0976 - root_mean_squared_error: 0.0737 - val_loss: 0.6098 - val_root_mean_squared_error: 0.4447 - learning_rate: 4.5049e-05
-    Epoch 42/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0942 - root_mean_squared_error: 0.0701 - val_loss: 0.6097 - val_root_mean_squared_error: 0.4446 - learning_rate: 4.0762e-05
-    Epoch 43/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0941 - root_mean_squared_error: 0.0687 - val_loss: 0.6096 - val_root_mean_squared_error: 0.4446 - learning_rate: 3.6883e-05
-    Epoch 44/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0965 - root_mean_squared_error: 0.0726 - val_loss: 0.6095 - val_root_mean_squared_error: 0.4445 - learning_rate: 3.3373e-05
-    Epoch 45/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0938 - root_mean_squared_error: 0.0712 - val_loss: 0.6094 - val_root_mean_squared_error: 0.4445 - learning_rate: 3.0197e-05
-    Epoch 46/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0972 - root_mean_squared_error: 0.0725 - val_loss: 0.6093 - val_root_mean_squared_error: 0.4445 - learning_rate: 2.7324e-05
-    Epoch 47/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0948 - root_mean_squared_error: 0.0691 - val_loss: 0.6092 - val_root_mean_squared_error: 0.4444 - learning_rate: 2.4724e-05
-    Epoch 48/150
-    [1m1812/1835[0m [32m━━━━━━━━━━━━━━━━━━━[0m[37m━[0m [1m0s[0m 2ms/step - loss: 0.0968 - root_mean_squared_error: 0.0729
     Training dihentikan pada epoch 48 karena loss tidak membaik.
     [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.0968 - root_mean_squared_error: 0.0729 - val_loss: 0.6091 - val_root_mean_squared_error: 0.4444 - learning_rate: 2.2371e-05
 
@@ -2685,96 +1853,6 @@ model_r = com_model(model)
 history_r = run_model(model_r, X_train_r, X_val_r, y_train_r, y_val_r)
 ```
 
-    Epoch 1/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m6s[0m 2ms/step - loss: 1.4035 - root_mean_squared_error: 0.5089 - val_loss: 0.7747 - val_root_mean_squared_error: 0.3069 - learning_rate: 0.0010
-    Epoch 2/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.7949 - root_mean_squared_error: 0.3252 - val_loss: 0.7636 - val_root_mean_squared_error: 0.3026 - learning_rate: 0.0010
-    Epoch 3/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.7140 - root_mean_squared_error: 0.2495 - val_loss: 0.7580 - val_root_mean_squared_error: 0.3007 - learning_rate: 0.0010
-    Epoch 4/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.7015 - root_mean_squared_error: 0.2477 - val_loss: 0.7507 - val_root_mean_squared_error: 0.2975 - learning_rate: 0.0010
-    Epoch 5/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6918 - root_mean_squared_error: 0.2365 - val_loss: 0.7448 - val_root_mean_squared_error: 0.2946 - learning_rate: 0.0010
-    Epoch 6/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6783 - root_mean_squared_error: 0.2267 - val_loss: 0.7396 - val_root_mean_squared_error: 0.2916 - learning_rate: 0.0010
-    Epoch 7/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6732 - root_mean_squared_error: 0.2234 - val_loss: 0.7352 - val_root_mean_squared_error: 0.2887 - learning_rate: 0.0010
-    Epoch 8/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6636 - root_mean_squared_error: 0.2140 - val_loss: 0.7317 - val_root_mean_squared_error: 0.2862 - learning_rate: 0.0010
-    Epoch 9/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6576 - root_mean_squared_error: 0.2070 - val_loss: 0.7291 - val_root_mean_squared_error: 0.2843 - learning_rate: 0.0010
-    Epoch 10/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6492 - root_mean_squared_error: 0.1985 - val_loss: 0.7267 - val_root_mean_squared_error: 0.2824 - learning_rate: 0.0010
-    Epoch 11/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6438 - root_mean_squared_error: 0.1942 - val_loss: 0.7249 - val_root_mean_squared_error: 0.2811 - learning_rate: 9.0484e-04
-    Epoch 12/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6381 - root_mean_squared_error: 0.1877 - val_loss: 0.7234 - val_root_mean_squared_error: 0.2799 - learning_rate: 8.1873e-04
-    Epoch 13/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6333 - root_mean_squared_error: 0.1827 - val_loss: 0.7222 - val_root_mean_squared_error: 0.2789 - learning_rate: 7.4082e-04
-    Epoch 14/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6267 - root_mean_squared_error: 0.1750 - val_loss: 0.7211 - val_root_mean_squared_error: 0.2781 - learning_rate: 6.7032e-04
-    Epoch 15/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6271 - root_mean_squared_error: 0.1734 - val_loss: 0.7203 - val_root_mean_squared_error: 0.2774 - learning_rate: 6.0653e-04
-    Epoch 16/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6180 - root_mean_squared_error: 0.1655 - val_loss: 0.7196 - val_root_mean_squared_error: 0.2768 - learning_rate: 5.4881e-04
-    Epoch 17/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6149 - root_mean_squared_error: 0.1625 - val_loss: 0.7190 - val_root_mean_squared_error: 0.2763 - learning_rate: 4.9659e-04
-    Epoch 18/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6148 - root_mean_squared_error: 0.1612 - val_loss: 0.7185 - val_root_mean_squared_error: 0.2759 - learning_rate: 4.4933e-04
-    Epoch 19/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6087 - root_mean_squared_error: 0.1518 - val_loss: 0.7180 - val_root_mean_squared_error: 0.2756 - learning_rate: 4.0657e-04
-    Epoch 20/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6068 - root_mean_squared_error: 0.1500 - val_loss: 0.7176 - val_root_mean_squared_error: 0.2752 - learning_rate: 3.6788e-04
-    Epoch 21/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6058 - root_mean_squared_error: 0.1474 - val_loss: 0.7172 - val_root_mean_squared_error: 0.2749 - learning_rate: 3.3287e-04
-    Epoch 22/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6005 - root_mean_squared_error: 0.1415 - val_loss: 0.7170 - val_root_mean_squared_error: 0.2747 - learning_rate: 3.0119e-04
-    Epoch 23/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6019 - root_mean_squared_error: 0.1428 - val_loss: 0.7167 - val_root_mean_squared_error: 0.2745 - learning_rate: 2.7253e-04
-    Epoch 24/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5984 - root_mean_squared_error: 0.1380 - val_loss: 0.7165 - val_root_mean_squared_error: 0.2743 - learning_rate: 2.4660e-04
-    Epoch 25/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.6004 - root_mean_squared_error: 0.1403 - val_loss: 0.7163 - val_root_mean_squared_error: 0.2741 - learning_rate: 2.2313e-04
-    Epoch 26/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5963 - root_mean_squared_error: 0.1341 - val_loss: 0.7160 - val_root_mean_squared_error: 0.2739 - learning_rate: 2.0190e-04
-    Epoch 27/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5967 - root_mean_squared_error: 0.1366 - val_loss: 0.7159 - val_root_mean_squared_error: 0.2738 - learning_rate: 1.8268e-04
-    Epoch 28/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5971 - root_mean_squared_error: 0.1353 - val_loss: 0.7157 - val_root_mean_squared_error: 0.2737 - learning_rate: 1.6530e-04
-    Epoch 29/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5984 - root_mean_squared_error: 0.1349 - val_loss: 0.7156 - val_root_mean_squared_error: 0.2736 - learning_rate: 1.4957e-04
-    Epoch 30/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5955 - root_mean_squared_error: 0.1316 - val_loss: 0.7154 - val_root_mean_squared_error: 0.2734 - learning_rate: 1.3534e-04
-    Epoch 31/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5916 - root_mean_squared_error: 0.1289 - val_loss: 0.7153 - val_root_mean_squared_error: 0.2734 - learning_rate: 1.2246e-04
-    Epoch 32/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5949 - root_mean_squared_error: 0.1312 - val_loss: 0.7152 - val_root_mean_squared_error: 0.2733 - learning_rate: 1.1080e-04
-    Epoch 33/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5937 - root_mean_squared_error: 0.1304 - val_loss: 0.7151 - val_root_mean_squared_error: 0.2732 - learning_rate: 1.0026e-04
-    Epoch 34/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5923 - root_mean_squared_error: 0.1284 - val_loss: 0.7150 - val_root_mean_squared_error: 0.2731 - learning_rate: 9.0718e-05
-    Epoch 35/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5930 - root_mean_squared_error: 0.1280 - val_loss: 0.7149 - val_root_mean_squared_error: 0.2731 - learning_rate: 8.2085e-05
-    Epoch 36/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5922 - root_mean_squared_error: 0.1284 - val_loss: 0.7149 - val_root_mean_squared_error: 0.2730 - learning_rate: 7.4274e-05
-    Epoch 37/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5920 - root_mean_squared_error: 0.1283 - val_loss: 0.7148 - val_root_mean_squared_error: 0.2729 - learning_rate: 6.7206e-05
-    Epoch 38/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5914 - root_mean_squared_error: 0.1229 - val_loss: 0.7147 - val_root_mean_squared_error: 0.2729 - learning_rate: 6.0810e-05
-    Epoch 39/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5911 - root_mean_squared_error: 0.1265 - val_loss: 0.7147 - val_root_mean_squared_error: 0.2729 - learning_rate: 5.5023e-05
-    Epoch 40/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5888 - root_mean_squared_error: 0.1221 - val_loss: 0.7146 - val_root_mean_squared_error: 0.2728 - learning_rate: 4.9787e-05
-    Epoch 41/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5901 - root_mean_squared_error: 0.1253 - val_loss: 0.7146 - val_root_mean_squared_error: 0.2728 - learning_rate: 4.5049e-05
-    Epoch 42/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5900 - root_mean_squared_error: 0.1247 - val_loss: 0.7146 - val_root_mean_squared_error: 0.2727 - learning_rate: 4.0762e-05
-    Epoch 43/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5889 - root_mean_squared_error: 0.1229 - val_loss: 0.7145 - val_root_mean_squared_error: 0.2727 - learning_rate: 3.6883e-05
-    Epoch 44/150
-    [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5917 - root_mean_squared_error: 0.1269 - val_loss: 0.7145 - val_root_mean_squared_error: 0.2727 - learning_rate: 3.3373e-05
-    Epoch 45/150
-    [1m1820/1835[0m [32m━━━━━━━━━━━━━━━━━━━[0m[37m━[0m [1m0s[0m 2ms/step - loss: 0.5897 - root_mean_squared_error: 0.1256
     Training dihentikan pada epoch 45 karena loss tidak membaik.
     [1m1835/1835[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 2ms/step - loss: 0.5898 - root_mean_squared_error: 0.1255 - val_loss: 0.7145 - val_root_mean_squared_error: 0.2727 - learning_rate: 3.0197e-05
 
@@ -2823,79 +1901,7 @@ Terakhir, kode menjalankan fungsi `recom_ids()` untuk dua model berbeda:
 - Hasil dari kedua model ditampilkan dengan `top_recom_game()`, sehingga pengguna dapat melihat perbandingan antara kedua metode rekomendasi.
 
 
-
-```python
-# Mengambil sample user
-games_df = df_collab
-user_id = df_collab_based.user_id.sample(1).iloc[0]
-# user_id = int(user_id)  # Pastikan user_id berupa string
-games_played_by_user = df_collab_based[df_collab_based.user_id==user_id]
-
-#Operator bitwise (~)
-games_not_played = games_df[~games_df['app_id'].isin(games_played_by_user.app_id.values)]['app_id']
-games_not_played = list(
-    set(games_not_played)
-    .intersection(set(app_to_app_encoded.keys()))
-)
-
-games_not_played = [[app_to_app_encoded.get(x)] for x in games_not_played]
-user_encoder = user_to_user_encoded.get(user_id)
-user_app_array = np.hstack(
-    ([[user_encoder]] * len(games_not_played), games_not_played)
-)
 ```
-
-
-```python
-def recom_ids(model):
-
-    ratings = model.predict(user_app_array).flatten()
-
-    top_ratings_indices = ratings.argsort()[-10:][::-1]
-    recommended_games_ids = [
-        app_encoded_to_app.get(games_not_played[x][0]) for x in top_ratings_indices
-    ]
-    return recommended_games_ids
-
-print(f'Showing recommendations for users: {user_id}')
-print('==='*9)
-print('Games with high ratings from user')
-print('---'*9)
-
-top_games_user = (
-    games_played_by_user.sort_values(
-        by = 'rating',
-        ascending=False
-    )
-    .head(5)
-    .app_id.values
-)
-
-games_df_rows = df_games[df_games['app_id'].isin(top_games_user)]
-for row in games_df_rows.itertuples():
-    print(row.title, ":", row.positive_ratio)
-
-def top_recom_game(recom_ids, title):
-    print('----' * 9)
-    print(f'Top 10 game recommendations from Model {title}')
-    print('----'*8)
-    recommended_games = df_games[df_games['app_id'].isin(recom_ids)]
-    for row in recommended_games.itertuples():
-        print(row.title, ":", row.positive_ratio)
-
-
-hour_based = 'Hour-based'
-rating_based = 'Rating-based'
-# Tampilkan untuk model hour_based
-result_h = recom_ids(model_h)
-top_recom_game(result_h, hour_based)
-
-
-# Tampilkan untuk model rating_based
-result_r = recom_ids(model_r)
-top_recom_game(result_r, rating_based)
-```
-
     Showing recommendations for users: 3197686
     ===========================
     Games with high ratings from user
@@ -2929,7 +1935,7 @@ top_recom_game(result_r, rating_based)
     Farmer Against Potatoes Idle : 96
     tModLoader : 97
     The Binding of Isaac: Rebirth : 97
-
+```
 
 User 3197686 memiliki rating untuk game ASTRA (61). Berdasarkan model collaborative filtering, dua pendekatan digunakan untuk merekomendasikan game:
 
@@ -2964,76 +1970,6 @@ $$ MRR = \frac{1}{N} \sum_{i=1}^{N} \frac{1}{rank_i} $$
 Jika item yang paling relevan ada di posisi pertama, **MRR = 1**. Semakin jauh posisinya, nilai MRR akan semakin kecil.
 
 **Metode evaluasi utama yang digunakan dalam analisis ini adalah Mean Reciprocal Rank (MRR).**
-
-
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report, accuracy_score
-
-def list_relevant(recommended_list, threshold=80):
-    """
-    Menentukan game yang relevan berdasarkan positive_ratio di atas threshold.
-    """
-    relevant_games = recommended_list[recommended_list['positive_ratio'] >= threshold]['app_id'].tolist()
-    return relevant_games
-
-def evaluate_recommendations(recommended_list, relevant_games, title="Confusion Matrix"):
-    """
-    Mengevaluasi hasil rekomendasi dengan membuat Confusion Matrix.
-    """
-    y_true = [1 if i in relevant_games else 0 for i in recommended_list]
-    y_pred = [1] * len(recommended_list)  # Semua hasil rekomendasi dianggap positif
-    
-    # Hitung metrik evaluasi
-    precision = len(set(recommended_list) & set(relevant_games)) / len(recommended_list) if recommended_list else 0
-    recall = len(set(recommended_list) & set(relevant_games)) / len(relevant_games) if relevant_games else 0
-    
-    mrr = 0
-    for rank, rec_idx in enumerate(recommended_list, start=1):
-        if rec_idx in relevant_games:
-            mrr = 1 / rank
-            break
-    
-    # Hitung Confusion Matrix
-    conf_matrix = confusion_matrix(y_true, y_pred, labels=[0, 1])
-    classification_metrics = classification_report(y_true, y_pred, labels=[0,1], target_names=['Irrelevant', 'Relevant'], zero_division=0)
-    accuracy = accuracy_score(y_true, y_pred)
-
-    # Visualisasi Confusion Matrix
-    fig, ax = plt.subplots(figsize=(6, 5))
-    disp = ConfusionMatrixDisplay(conf_matrix, display_labels=['Irrelevant', 'Relevant'])
-    disp.plot(ax=ax, cmap='Blues')
-    ax.set_title(title)
-    plt.show()
-    
-    return precision, recall, mrr, conf_matrix, classification_metrics, accuracy
-
-# Data hasil rekomendasi
-game_recommended = [1032790, 926520, 376680, 512260, 480640]  # app_id dari rekomendasi
-
-game_recommendations_df = pd.DataFrame({
-    'app_id': game_recommended,
-    'positive_ratio': [90, 89, 83, 88, 67]  # Sesuai dengan data di atas
-})
-
-# Tentukan game yang relevan
-relevant_games = list_relevant(game_recommendations_df, threshold=80)
-
-# Evaluasi hasil rekomendasi
-precision, recall, mrr, conf_matrix, class_report, accuracy = evaluate_recommendations(game_recommended, relevant_games)
-
-# Cetak hasil evaluasi
-print(f"Precision@5: {precision:.2f}")
-print(f"Recall@5: {recall:.2f}")
-print(f"Mean Reciprocal Rank (MRR): {mrr:.2f}")
-print(f"Accuracy: {accuracy:.2f}")
-print("\nConfusion Matrix:")
-print(conf_matrix)
-print("\nClassification Report:")
-print(class_report)
-
-```
 
 
     
@@ -3145,206 +2081,6 @@ Grafik pertama menunjukkan RMSE untuk model berbasis jam ```(hour-based)```, sed
 2. RMSE pada data validasi (val) juga menurun tetapi lebih lambat dan cenderung stabil setelah beberapa epoch.
 3. Model berbasis jam memiliki RMSE validasi yang lebih tinggi dibandingkan model berbasis rating, yang mungkin menunjukkan bahwa model rating-based lebih baik dalam melakukan generalisasi terhadap data baru.
 4. Dari kedua grafik ini, tidak terlihat overfitting yang signifikan, tetapi jika RMSE validasi tidak turun lebih jauh, maka model mungkin sudah mencapai batas optimalnya.
-
-## **Persiapkan Laporan**
-
-
-```python
-# !pip install nbconvert
-!jupyter nbconvert --to markdown /content/gambar.ipynb
-```
-
-    [NbConvertApp] WARNING | pattern '/content/gambar.ipynb' matched no files
-    This application is used to convert notebook files (*.ipynb)
-            to various other formats.
-    
-            WARNING: THE COMMANDLINE INTERFACE MAY CHANGE IN FUTURE RELEASES.
-    
-    Options
-    =======
-    The options below are convenience aliases to configurable class-options,
-    as listed in the "Equivalent to" description-line of the aliases.
-    To see all configurable class-options for some <cmd>, use:
-        <cmd> --help-all
-    
-    --debug
-        set log level to logging.DEBUG (maximize logging output)
-        Equivalent to: [--Application.log_level=10]
-    --show-config
-        Show the application's configuration (human-readable format)
-        Equivalent to: [--Application.show_config=True]
-    --show-config-json
-        Show the application's configuration (json format)
-        Equivalent to: [--Application.show_config_json=True]
-    --generate-config
-        generate default config file
-        Equivalent to: [--JupyterApp.generate_config=True]
-    -y
-        Answer yes to any questions instead of prompting.
-        Equivalent to: [--JupyterApp.answer_yes=True]
-    --execute
-        Execute the notebook prior to export.
-        Equivalent to: [--ExecutePreprocessor.enabled=True]
-    --allow-errors
-        Continue notebook execution even if one of the cells throws an error and include the error message in the cell output (the default behaviour is to abort conversion). This flag is only relevant if '--execute' was specified, too.
-        Equivalent to: [--ExecutePreprocessor.allow_errors=True]
-    --stdin
-        read a single notebook file from stdin. Write the resulting notebook with default basename 'notebook.*'
-        Equivalent to: [--NbConvertApp.from_stdin=True]
-    --stdout
-        Write notebook output to stdout instead of files.
-        Equivalent to: [--NbConvertApp.writer_class=StdoutWriter]
-    --inplace
-        Run nbconvert in place, overwriting the existing notebook (only 
-                relevant when converting to notebook format)
-        Equivalent to: [--NbConvertApp.use_output_suffix=False --NbConvertApp.export_format=notebook --FilesWriter.build_directory=]
-    --clear-output
-        Clear output of current file and save in place, 
-                overwriting the existing notebook.
-        Equivalent to: [--NbConvertApp.use_output_suffix=False --NbConvertApp.export_format=notebook --FilesWriter.build_directory= --ClearOutputPreprocessor.enabled=True]
-    --no-prompt
-        Exclude input and output prompts from converted document.
-        Equivalent to: [--TemplateExporter.exclude_input_prompt=True --TemplateExporter.exclude_output_prompt=True]
-    --no-input
-        Exclude input cells and output prompts from converted document. 
-                This mode is ideal for generating code-free reports.
-        Equivalent to: [--TemplateExporter.exclude_output_prompt=True --TemplateExporter.exclude_input=True --TemplateExporter.exclude_input_prompt=True]
-    --allow-chromium-download
-        Whether to allow downloading chromium if no suitable version is found on the system.
-        Equivalent to: [--WebPDFExporter.allow_chromium_download=True]
-    --disable-chromium-sandbox
-        Disable chromium security sandbox when converting to PDF..
-        Equivalent to: [--WebPDFExporter.disable_sandbox=True]
-    --show-input
-        Shows code input. This flag is only useful for dejavu users.
-        Equivalent to: [--TemplateExporter.exclude_input=False]
-    --embed-images
-        Embed the images as base64 dataurls in the output. This flag is only useful for the HTML/WebPDF/Slides exports.
-        Equivalent to: [--HTMLExporter.embed_images=True]
-    --log-level=<Enum>
-        Set the log level by value or name.
-        Choices: any of [0, 10, 20, 30, 40, 50, 'DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL']
-        Default: 30
-        Equivalent to: [--Application.log_level]
-    --config=<Unicode>
-        Full path of a config file.
-        Default: ''
-        Equivalent to: [--JupyterApp.config_file]
-    --to=<Unicode>
-        The export format to be used, either one of the built-in formats
-                ['asciidoc', 'custom', 'html', 'latex', 'markdown', 'notebook', 'pdf', 'python', 'rst', 'script', 'slides', 'webpdf']
-                or a dotted object name that represents the import path for an
-                ``Exporter`` class
-        Default: ''
-        Equivalent to: [--NbConvertApp.export_format]
-    --template=<Unicode>
-        Name of the template to use
-        Default: ''
-        Equivalent to: [--TemplateExporter.template_name]
-    --template-file=<Unicode>
-        Name of the template file to use
-        Default: None
-        Equivalent to: [--TemplateExporter.template_file]
-    --theme=<Unicode>
-        Template specific theme(e.g. the name of a JupyterLab CSS theme distributed
-        as prebuilt extension for the lab template)
-        Default: 'light'
-        Equivalent to: [--HTMLExporter.theme]
-    --writer=<DottedObjectName>
-        Writer class used to write the 
-                                            results of the conversion
-        Default: 'FilesWriter'
-        Equivalent to: [--NbConvertApp.writer_class]
-    --post=<DottedOrNone>
-        PostProcessor class used to write the
-                                            results of the conversion
-        Default: ''
-        Equivalent to: [--NbConvertApp.postprocessor_class]
-    --output=<Unicode>
-        overwrite base name use for output files.
-                    can only be used when converting one notebook at a time.
-        Default: ''
-        Equivalent to: [--NbConvertApp.output_base]
-    --output-dir=<Unicode>
-        Directory to write output(s) to. Defaults
-                                      to output to the directory of each notebook. To recover
-                                      previous default behaviour (outputting to the current 
-                                      working directory) use . as the flag value.
-        Default: ''
-        Equivalent to: [--FilesWriter.build_directory]
-    --reveal-prefix=<Unicode>
-        The URL prefix for reveal.js (version 3.x).
-                This defaults to the reveal CDN, but can be any url pointing to a copy 
-                of reveal.js. 
-                For speaker notes to work, this must be a relative path to a local 
-                copy of reveal.js: e.g., "reveal.js".
-                If a relative path is given, it must be a subdirectory of the
-                current directory (from which the server is run).
-                See the usage documentation
-                (https://nbconvert.readthedocs.io/en/latest/usage.html#reveal-js-html-slideshow)
-                for more details.
-        Default: ''
-        Equivalent to: [--SlidesExporter.reveal_url_prefix]
-    --nbformat=<Enum>
-        The nbformat version to write.
-                Use this to downgrade notebooks.
-        Choices: any of [1, 2, 3, 4]
-        Default: 4
-        Equivalent to: [--NotebookExporter.nbformat_version]
-    
-    Examples
-    --------
-    
-        The simplest way to use nbconvert is
-    
-                > jupyter nbconvert mynotebook.ipynb --to html
-    
-                Options include ['asciidoc', 'custom', 'html', 'latex', 'markdown', 'notebook', 'pdf', 'python', 'rst', 'script', 'slides', 'webpdf'].
-    
-                > jupyter nbconvert --to latex mynotebook.ipynb
-    
-                Both HTML and LaTeX support multiple output templates. LaTeX includes
-                'base', 'article' and 'report'.  HTML includes 'basic', 'lab' and 
-                'classic'. You can specify the flavor of the format used.
-    
-                > jupyter nbconvert --to html --template lab mynotebook.ipynb
-    
-                You can also pipe the output to stdout, rather than a file
-    
-                > jupyter nbconvert mynotebook.ipynb --stdout
-    
-                PDF is generated via latex
-    
-                > jupyter nbconvert mynotebook.ipynb --to pdf
-    
-                You can get (and serve) a Reveal.js-powered slideshow
-    
-                > jupyter nbconvert myslides.ipynb --to slides --post serve
-    
-                Multiple notebooks can be given at the command line in a couple of 
-                different ways:
-    
-                > jupyter nbconvert notebook*.ipynb
-                > jupyter nbconvert notebook1.ipynb notebook2.ipynb
-    
-                or you can specify the notebooks list in a config file, containing::
-    
-                    c.NbConvertApp.notebooks = ["my_notebook.ipynb"]
-    
-                > jupyter nbconvert --config mycfg.py
-    
-    To see all available configurables, use `--help-all`.
-    
-
-
-
-```python
-!zip -r gambar_files.zip gambar_files
-```
-
-    	zip warning: name not matched: gambar_files
-    
-    zip error: Nothing to do! (try: zip -r gambar_files.zip . -i gambar_files)
 
 
 ## **References**
